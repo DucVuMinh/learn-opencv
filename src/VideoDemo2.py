@@ -5,7 +5,7 @@
 
 import cv2
 import numpy as np
-cap = cv2.VideoCapture('../data/video/nhoc_trum.mp4') # Nho doi theo dung duong dan Video trong may local
+cap = cv2.VideoCapture('../data/video/The_Good_Dinosaur.mp4') # Nho doi theo dung duong dan Video trong may local
 i = 0
 hist_new = np.array([]) 
 hist_old = np.array([])
@@ -26,7 +26,7 @@ while(cap.isOpened()):
     gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
     # Tinh histogram
-    hist_new = cv2.calcHist([gray_image], [0], None, [256], [0,256])
+    hist_new = cv2.calcHist([gray_image], [0], None, [64], [0,256])
     
     # Neu la frame dau tien thi chua can so sanh
     if (i == 0):
@@ -42,7 +42,7 @@ while(cap.isOpened()):
     
     # Them vao ket qua so sanh histogram
     results[i-1] = d
-    
+
     # Tang i, cho hist_new thanh hist_old de tinh tiep
     i = i+1
     hist_old = hist_new
@@ -61,7 +61,7 @@ dist_hist
 
 
 # In[5]:
-
+print dist_hist
 # Ve do thi the hien su chenh lech histogram theo thu tu cac frame, o day chi lay 200 frame tu 100 den 300
 import matplotlib.pyplot as plt
 plt.plot(dist_hist[0:200, 0], dist_hist[0:200, 1])

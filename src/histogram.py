@@ -14,7 +14,7 @@ for i,col in enumerate(color):
     histr = cv2.calcHist([img],[i],None,[256],[0,256])
     if i==0:
         print type(histr)
-        print histr.shape
+        print histr
         print np.sum(histr)
     plt.plot(histr,color = col)
     plt.xlim([0,256])
