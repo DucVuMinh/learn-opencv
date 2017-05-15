@@ -8,6 +8,7 @@ print( length )
 old_frame = []
 new_frame = []
 res = np.array([], dtype= np.float)
+
 for i in range(length):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -27,7 +28,7 @@ for i in range(length):
         new_frame = hist_new
 
     diff = [np.sum( np.absolute(old_frame - new_frame) ) ]
-    res = np.append(res, diff, axis = 0)
+    res = np.append(res[:500], diff, axis = 0)
 print res.shape
 
 plt.plot(res,color = 'r')
