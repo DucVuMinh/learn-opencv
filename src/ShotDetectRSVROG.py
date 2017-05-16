@@ -2,12 +2,30 @@
 Createb by DucVM
 """
 
-
+from  __future__ import  print_function
+from  __future__ import  division
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-
+#def function to calculating the constrast of gray image
+def calConstrastGray(img_gray):
+    var = np.var(img_gray)
+    mean = np.mean(img_gray)
+    height, width = img_gray.shape
+    size = height * width
+    constrast = np.sqrt(1 / size * np.sum((img_gray - mean) * (img_gray - mean)))
+    #print("constrast ", constrast)
+    return  constrast
+#def function to calculating the constrast
+def calConstrastColor(img):
+    var = np.var(img)
+    mean = np.mean(img)
+    height, width, channels = img.shape
+    size = height * width
+    constrast = np.sqrt(1 / size * np.sum((img - mean) * (img - mean)))
+    #print("constrast ", constrast)
+    return  constrast
 #def fucntion to read video and then output image that represent for each shot
 def dectUsingRSV(inputfile, outputfolder, S):
     pass
@@ -17,7 +35,7 @@ def dectUsingRSV(inputfile, outputfolder, S):
 
 def dectUsingROG(inputfolder, outputfolder, T):
     pass
-cap = cv2.VideoCapture('../data/video/The_Good_Dinosaur.mp4')
+cap = cv2.VideoCapture('../data/video/doc_long_bolero.mp4')
 length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 print( length )
 old_frame = []
@@ -50,7 +68,7 @@ for i in range(length):
     diff = [np.sum( np.absolute(old_frame - new_frame) ) ]
 
     res = np.append(res, [diffChiSquare], axis = 0)
-print res.shape
+print (res.shape)
 
 plt.plot(res,color = 'r')
 #plt.xlim([0,256])
@@ -60,16 +78,63 @@ plt.show()
 
 var = np.var(res)
 mean = np.mean(res)
-T = mean + np.sqrt(var)
-print T
+T = mean + 0.5*np.sqrt(var)
+print (T)
 shotDect = [index for index in range(length) if res[index] >= T]
-for frame in shotDect:
-    cap.set(2, frame)
-    f = cap.get(int(frame))
-    print frame
-    cv2.imshow('frame', f)
-    print f.shape
-    cv2.imwrite("../data/video/output/The_Good_Dinosaur/frame%d.jpg" % frame, f)
+
+index = 0
+lengthShot = len(shotDect)
+selectedFrame = np.array([], dtype = np.int8)
+for i in range(lengthShot):
+    select = 0
+    if i == 0:
+        select = shotDect[i]/2
+    else:
+        select = (shotDect[i-1] + shotDect[i])/2
+    selectedFrame = np.append(selectedFrame, select)
+lengthSelected = len(selectedFrame)
+print (lengthSelected)
+cap.set(2,0)
+maxConstrast = 0
+imgchoice = []
+indexChoice = 0
+arrChoice = np.array([], dtype= np.int)
+for i in range(length):
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #calculate the constrast
+    if (ret != True):
+        break
+    #if (index< lengthSelected) & (i == selectedFrame[index]):
+    #    print (i)
+    #    cv2.imshow('frame', frame)
+    #    cv2.imwrite("../data/video/output/The_Good_Dinosaur3/frame%d.jpg" % shotDect[index], frame)
+    #    index = index + 1
+    print (index, "-------" ,lengthShot)
+    if (index< lengthShot) & (i < shotDect[index]):
+
+        constrast = calConstrastGray(gray)
+        if (constrast > maxConstrast):
+            maxConstrast = constrast
+            imgchoice = gray
+            indexChoice = i
+
+    else:
+        arrChoice = np.append(arrChoice, indexChoice)
+        cv2.imshow('frame', imgchoice)
+        cv2.imwrite("../data/video/output/doc_long_bolero/frame%d.jpg" % indexChoice, imgchoice)
+        maxConstrast = calConstrastGray(gray)
+        imgchoice = gray
+        indexChoice = i
+        index = index +1
+        if (index >= lengthShot):
+            break
 # When everything done, release the capture
+np.savetxt("../data/video/output/doc_long_bolero/choice.txt", arrChoice)
+np.savetxt("../data/video/output/doc_long_bolero/shotdect.txt", shotDect)
 cap.release()
 cv2.destroyAllWindows()
+
+
+
